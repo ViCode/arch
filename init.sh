@@ -1,0 +1,26 @@
+umount -R /mnt
+mkfs.ext4 -F /dev/sda3;
+mkfs.ext4 -F /dev/sdb1;
+mkfs.ext4 -F /dev/sda1;
+mkswap /dev/sda2;
+mkdir /mnt/{home,boot};
+mount /dev/sda3 /mnt;
+mount /dev/sdb /mnt/home;
+mount /dev/sda1 /mnt/boot;
+pacman-key --init ;
+pacman-key --populate ;
+pacman-key --refresh-keys ;
+pacman -Sy archlinux-keyring --noconfirm;
+pacstrap /mnt base base-devel --noconfirm;
+genfstab -U -p /mnt >> /mnt/etc/fstab;
+arch-chroot /mnt /bin/bash -c "pacman-db-upgrade";
+arch-chroot /mnt /bin/bash -c "echo vic > /etc/hostname";
+arch-chroot /mnt /bin/bash -c "ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime";
+arch-chroot /mnt /bin/bash -c "locale-gen";
+arch-chroot /mnt /bin/bash -c "pacman -S wireless_tools wpa_supplicant wpa_actiond dialog wget sudo gptfdisk syslinux xorg-server xorg-xinit xorg-server-utils nvidia nvidia-utils nvidia-libgl libva-vdpau-driver i3 xterm --noconfirm";
+arch-chroot /mnt /bin/bash -c "wget https://raw.githubusercontent.com/ViCode/arch/master/pacman.conf; cp pacman.conf /etc; pacman -Sy";
+arch-chroot /mnt /bin/bash -c "useradd -m -g users -G wheel,storage,power -s /bin/bash vic; passwd vic";
+arch-chroot /mnt /bin/bash -c "EDITOR=nano visudo";
+arch-chroot /mnt /bin/bash -c "syslinux-install_update -iam";
+arch-chroot /mnt /bin/bash -c "mkinitcpio -p linux";
+arch-chroot /mnt /bin/bash -c "passwd";
